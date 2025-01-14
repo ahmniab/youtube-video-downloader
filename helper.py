@@ -54,7 +54,7 @@ def available_downloads(url):
         if f['acodec'] == 'none':
             f['id'] = f'{f['id']}+{aud_formats[0]['id']}'
             f['acodec'] = aud_formats[0]['acodec']
-            f['filesize'] = f'{f['filesize']}+{aud_formats[0]['filesize']}'
+            f['filesize'] = f['filesize']+aud_formats[0]['filesize']
         vid_with_aud_formats.append(f)
 
     return {"audio":aud_formats,"video":vid_with_aud_formats}
