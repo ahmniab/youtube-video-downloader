@@ -6,14 +6,15 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
     # Handle GET requests
     def do_GET(self):
+        print('path '+self.path)
         if self.path == "/":
             self.serve_file("appui/index.html", "text/html")
-        elif self.path == "/setting" or "/settings":
+        elif self.path == "/setting" or self.path == "/settings":
             self.serve_file("appui/setting.html", "text/html")
 
-        elif self.path.startswith("/css/"):
+        elif self.path.startswith("/css"):
             self.serve_file(f"appui{self.path}", "text/css")
-        elif self.path.startswith("/js/"):
+        elif self.path.startswith("/js"):
             self.serve_file(f"appui{self.path}", "application/javascript")
         else:
             self.handle_not_found()
