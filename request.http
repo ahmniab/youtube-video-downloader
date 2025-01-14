@@ -1,0 +1,6 @@
+POST http://localhost:8087/vid-info
+content-type: application/json
+
+{
+    "link": "https://youtu.be/iOf7zYGJeRQ?si=9Bg8KYxMYsDwBxOx"
+}
