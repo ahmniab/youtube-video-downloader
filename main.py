@@ -5,7 +5,7 @@ import helper
 if __name__ == "__main__":
 
     settings = helper.get_settings()
-
+    # settings["port"] = 6969
     server_address = ("", settings["port"])
     httpd = HTTPServer(server_address, HTTPRequestHandler)
     print(f"Server running on http://localhost:{settings["port"]}")
