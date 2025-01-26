@@ -3,6 +3,7 @@ import json
 import helper
 from yt_dlp import DownloadError
 import download_manager
+import page_builder
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
@@ -18,9 +19,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         print('path '+self.path)
         if self.path == "/":
-            self.serve_file("appui/index.html", "text/html")
+            self.serve_page("index")
         elif self.path == "/setting" or self.path == "/settings":
-            self.serve_file("appui/setting.html", "text/html")  
+            self.serve_page("setting") 
         elif self.path == "/change-settings" :
             self.serve_file('settings.json', 'application/json')
         elif self.path == "/downloads":
@@ -177,4 +178,17 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
         with open('settings.json', 'w') as f:
             json.dump(settings_data, f)
+    
+    def serve_page(self, name:str):
+        try: 
+            page_text = page_builder.get_page(name)
+            self.send_response(404)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(bytes(page_text, "utf-8"))
+
+        except FileNotFoundError :
+            self.handle_not_found()
+
+        
         
