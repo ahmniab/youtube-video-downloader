@@ -18,15 +18,38 @@ class download:
         
 
     def progress_hook(self, d):
-        self.dlp_dict = d
+        # self.dlp_dict = d
+        self.dlp_dict['downloaded_bytes']   = d['downloaded_bytes']
+        self.dlp_dict['total_bytes']        = d['total_bytes']
+        self.dlp_dict['status']             = d['status'] 
+        self.dlp_dict['_speed_str']         = d['_speed_str']
+        self.dlp_dict['_total_bytes_str']   = d['_total_bytes_str']
+        self.dlp_dict['filename']           = d['filename']
+        self.dlp_dict['_default_template']  = d['_default_template']
+        self.dlp_dict['thumbnail']          = d['info_dict']['thumbnail']
+        self.dlp_dict['format_note']        = d['info_dict']['format_note'] 
     
     def __str__(self):
-        json.dumps(self.dlp_dict)
+        return json.dumps(self.to_dict())
     def __len__(self):
         return self.dlp_dict['total_bytes']
+    def to_dict(self):
+        return {
+            "dlp-info":self.dlp_dict, 
+            "id":self.id,
+            "url":self.url,
+            "format_id":self.format_id,
+            "download_path":self.download_path
+        }
                 
                   
 active_downloads = []
+def get_active_downloads():
+    global active_downloads
+    active_downloads_dict = []
+    for dl in active_downloads:
+        active_downloads_dict.append(dl.to_dict())
+    return active_downloads_dict
 
 def list_available_formats(url):
     ydl_opts = {
@@ -103,6 +126,7 @@ def start_download(dl:download):
 def download_video_in_format(url, format_id)->int:
     settings = helper.get_settings()
     new_download = download(url, format_id, settings['download_path'])
+    active_downloads.append(new_download)
     threading.Thread(target=start_download, args=(new_download,)).start()
     return new_download.id
     

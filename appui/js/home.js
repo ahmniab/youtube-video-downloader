@@ -64,7 +64,7 @@ link_box.addEventListener('change', (e)=> {
     spinner.classList.remove('hidden');
     var xhr = new XMLHttpRequest();
 
-    xhr.open("POST", "http://localhost:8087/vid-info", true);
+    xhr.open("POST", `http://${HOST_NAME}/vid-info`, true);
     xhr.setRequestHeader("Content-Type", "application/json");
 
     xhr.onload = function () {
@@ -97,7 +97,7 @@ function download(){
     let selected_format = document.querySelector('input[name="id"]:checked');
     if(selected_format){
         let xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:8087/download", true);
+        xhr.open("POST", `http://${HOST_NAME}/download`, true);
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onload = function () {

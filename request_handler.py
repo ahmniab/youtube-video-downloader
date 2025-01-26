@@ -20,7 +20,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         if self.path == "/":
             self.serve_file("appui/index.html", "text/html")
         elif self.path == "/setting" or self.path == "/settings":
-            self.serve_file("appui/setting.html", "text/html")            
+            self.serve_file("appui/setting.html", "text/html")  
+        elif self.path == "/change-settings" :
+            self.serve_file('settings.json', 'application/json')
+        elif self.path == "/downloads":
+            self.handle_downloads()
 
         elif self.path.startswith("/css"):
             self.serve_file(f"appui{self.path}", "text/css")
@@ -28,13 +32,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.serve_file(f"appui{self.path}", "application/javascript")
         else:
             self.handle_not_found()
+        
 
     # Handle POST requests
     def do_POST(self):
         if self.path == "/vid-info":
             self.handle_vid_info()
-        elif self.path == "/settings" :
-            pass
+        elif self.path == "/change-settings" :
+            self.handle_change_settings()
         elif self.path == "/download":
             self.handle_download_request()
         else:
@@ -92,6 +97,39 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         except DownloadError:
             self.handle_client_error("Download failed")
     
+    def handle_downloads(self):
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        # self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(download_manager.get_active_downloads()).encode("utf-8"))
+
+    def handle_change_settings(self):
+        content_length = int(self.headers["Content-Length"])
+        post_data = self.rfile.read(content_length)
+        
+        try:
+            data = json.loads(post_data.decode("utf-8"))
+            print("Received data:", data)
+            if "port" not in data and not isinstance(data["port"], int) or \
+               "download_path" not in data and not isinstance(data["download_path"], str) :
+                raise ValueError("Invalid data format")
+                        
+            # everything is fine
+            self.save_new_settings(data)
+            self.send_json_data({"massage": 'done'})
+
+
+        except json.JSONDecodeError:
+            self.handle_client_error("Invalid JSON")
+        except ValueError:
+            self.handle_client_error("Invalid data format")
+        # except :
+        #     print('Unkown Error')
+
+        
+        
+    
     #helping functions
     def handle_not_found(self):
         self.send_response(404)
@@ -124,3 +162,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Content-type", "text/html")
             self.end_headers()
             self.wfile.write(b"404 - File not found")
+
+    def save_new_settings(self, settings_data:json):
+        if settings_data['download_path'][-1] not in '/\\' :
+            settings_data['download_path'] += '/'
+
+        with open('appui/js/server_info.js', 'w') as f:
+            hostname = f"HOST_NAME = 'localhost:{settings_data['port']}'"
+            print(f'new hastname : {hostname}')
+            f.write(hostname)
+
+        with open('settings.json', 'w') as f:
+            json.dump(settings_data, f)
+        
