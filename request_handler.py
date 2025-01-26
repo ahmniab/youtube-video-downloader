@@ -30,6 +30,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.serve_file(f"appui{self.path}", "text/css")
         elif self.path.startswith("/js"):
             self.serve_file(f"appui{self.path}", "application/javascript")
+        elif self.path.startswith("/favicon.ico"):
+            self.serve_file(f"appui/images/favicon.ico", "image/x-icon")
+
         else:
             self.handle_not_found()
         
